@@ -6,7 +6,10 @@ public class Folder_Checksum_Verify {
   private static List<String> sourceFileList = new ArrayList<String>();
   private static Map<String, List<String>> propertiesMap = null;
   private static List<String> skippedExtentionList = null;
-  
+  private static List<String> repoFlagList = null;
+  private static boolean repoFlag = false;
+  private static String repoDir = "";
+
   private static int CHECKSUM_SUCCESS = 1;
   private static int CHECKSUM_FAILURE = 2;
   private static int CHECKSUM_MISSING = 3;
@@ -16,6 +19,8 @@ public class Folder_Checksum_Verify {
     if(args != null && args.length > 0 && !args[0].trim().equals("")) {
         SOURCE_BASE_FOLDER = args[0];
     }
+    //SOURCE_BASE_FOLDER ="D:\\zShibu\\0_from_TRC\\00-shibu\\fin\\1";
+    SOURCE_BASE_FOLDER = SOURCE_BASE_FOLDER.replace("\\", "/");
     //System.out.println("SOURCE_BASE_FOLDER ="+SOURCE_BASE_FOLDER);
     File sourceFolder = new File(SOURCE_BASE_FOLDER);
     if(!sourceFolder.exists()) {
@@ -23,12 +28,25 @@ public class Folder_Checksum_Verify {
         System.exit(-1);
     }
     sourceFileList = FileUtil.getFileListFromFolder(SOURCE_BASE_FOLDER);
-    String propertyFilePath = locatePropertiesFile();
+    String propertyFilePath = Util.locatePropertiesFile();
     propertiesMap = PropertiesLoader.loadToHashMap(propertyFilePath);
     skippedExtentionList = (List<String>)propertiesMap.get("SKIPPED_EXTENSION");
+    
+    Properties prop = PropertiesLoader.load(propertyFilePath);
+    String repoFlagStr = (String)prop.get("ADD_TO_CHECKSUM_REPOSITORY");
+    if(repoFlagStr.equals("YES")) {
+        repoFlag = true;
+    }
+    repoDir = (String)prop.get("CHECKSUM_REPOSITORY_DIR");
+    repoDir = repoDir.trim();
+    repoDir = repoDir.replace("\\", "/");
+    if(!repoDir.endsWith("/")) {
+    	repoDir = repoDir + "/";
+    }
+
     for(int i=0;i<sourceFileList.size();i++) {
         String fileName = sourceFileList.get(i);
-        boolean skip = checkIfExtentionIsToBeSkipped(fileName);
+        boolean skip = Util.checkIfExtentionIsToBeSkipped(skippedExtentionList, fileName);
         if(skip == true) {
             continue;
         }
@@ -38,13 +56,17 @@ public class Folder_Checksum_Verify {
 		String parentFolderName = file.getParent();
 		String fileNameOnly = file.getName();
 		//------------------------------------------------------------
-        System.out.println("-----------------------------------------------------------");
-		int result = verifyChecksum(fileName, parentFolderName + "/info/" + fileNameOnly + ".md5");
-		if(result == CHECKSUM_MISSING) {
-			result = verifyChecksum(fileName, parentFolderName + "/" + fileNameOnly + ".md5");
-		}
+        //System.out.println("-----------------------------------------------------------");
+		int result = verifyChecksum(fileName, parentFolderName + "/" + fileNameOnly + ".md5");
 		if(result == CHECKSUM_MISSING) {
 			result = verifyChecksum(fileName, parentFolderName + "/md5/" + fileNameOnly + ".md5");
+		}
+		if(result == CHECKSUM_MISSING) {
+			result = verifyChecksum(fileName, parentFolderName + "/info/" + fileNameOnly + ".md5");
+		}
+		if(result == CHECKSUM_MISSING) {
+			String fileNameMD5 = MD5Util.getMD5ChecksumAsHEX(fileNameOnly);
+			result = verifyChecksum(fileName, repoDir + "/" + fileNameMD5.substring(0,2) + "/" + fileNameMD5 + ".txt");
 		}
 		//-------------------------------------------------------------
 		if(result == CHECKSUM_SUCCESS) {
@@ -56,7 +78,7 @@ public class Folder_Checksum_Verify {
 		if(result == CHECKSUM_MISSING) {
             System.out.println("MISS : "+fileName);
 		}
-        System.out.println("-----------------------------------------------------------");
+        //System.out.println("-----------------------------------------------------------");
     }
   }
   //-----------------------------------------------------------------------------------------------------------------------
@@ -65,47 +87,16 @@ public class Folder_Checksum_Verify {
         if(!md5File.exists()) {
             return CHECKSUM_MISSING;
         }
-        String md5String = MD5Util.getMD5ChecksumAsHEX(fileName);
+        String md5String = MD5Util.getMD5ChecksumAsHEX(new File(fileName));
         String md5StringExisting = FileUtil.readFileContentsAsString(md5FileName);
         md5StringExisting = md5StringExisting.substring(0,32);
-        System.out.println("Existing : "+md5StringExisting);
-        System.out.println("Computed : "+md5String);
+        //System.out.println("Existing : "+md5StringExisting);
+        //System.out.println("Computed : "+md5String);
         if(md5StringExisting.equalsIgnoreCase(md5String)) {
 			return CHECKSUM_SUCCESS;
         } else {
 			return CHECKSUM_FAILURE;
         }
-  }
-  //-----------------------------------------------------------------------------------------------------------------------
-  public static boolean checkIfExtentionIsToBeSkipped(String fileName) {
-    int index = fileName.lastIndexOf(".");
-    if(index > -1) {
-      String fileExtn = fileName.substring(index+1);
-      if(skippedExtentionList.contains(fileExtn)) {
-          return true;
-      }
-    }
-    return false;
-  }
-  //-----------------------------------------------------------------------------------------------------------------------
-  public static String locatePropertiesFile() {
-      String filePath="";
-      filePath = "C:\\checksum_generator.properties";
-      if((new File(filePath)).exists()) return filePath;
-      
-      filePath = "D:\\checksum_generator.properties";
-      if((new File(filePath)).exists()) return filePath;
-      
-      filePath = "C:\\Programs_Portable_GIT\\Java_Utils\\checksum_generator.properties";
-      if((new File(filePath)).exists()) return filePath;
-            
-      filePath = "D:\\Programs_Portable_GIT\\Java_Utils\\checksum_generator.properties";
-      if((new File(filePath)).exists()) return filePath;
-            
-      filePath = "/home/pi/utils/checksum_generator.properties";
-      if((new File(filePath)).exists()) return filePath;
-            
-      return "";
   }
   //-----------------------------------------------------------------------------------------------------------------------
 }
