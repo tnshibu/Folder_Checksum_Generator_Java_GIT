@@ -69,6 +69,13 @@ public class Folder_Checksum_Generator {
             continue;
         }
 		//------------------------------------------------------------
+        //check if the checksum file exists in the checksum repo
+		String fileNameMD5 = MD5Util.getMD5ChecksumAsHEX(fileNameOnly);
+		File ff = new File(repoDir + "/" + fileNameMD5.substring(0,2) + "/" + fileNameMD5 + ".txt");
+		if(ff.exists()) {
+			continue;
+		}
+		//------------------------------------------------------------
         md5File = new File(fileName+".md5");
         if(md5File.exists()) {
             continue;
