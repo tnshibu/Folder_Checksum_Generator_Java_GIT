@@ -18,7 +18,7 @@ public class FileUtil {
             else
                 fileTree.addAll(getFileList(entry.getAbsolutePath()));
         }
-		Collections.sort(fileTree);
+		Collections.sort(fileTree, String.CASE_INSENSITIVE_ORDER);
         return fileTree;
     }
 
