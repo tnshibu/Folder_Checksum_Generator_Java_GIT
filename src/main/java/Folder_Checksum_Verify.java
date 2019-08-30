@@ -34,14 +34,16 @@ public class Folder_Checksum_Verify {
     
     Properties prop = PropertiesLoader.load(propertyFilePath);
     String repoFlagStr = (String)prop.get("ADD_TO_CHECKSUM_REPOSITORY");
-    if(repoFlagStr.equals("YES")) {
+    if("YES".equals(repoFlagStr)) {
         repoFlag = true;
     }
     repoDir = (String)prop.get("CHECKSUM_REPOSITORY_DIR");
-    repoDir = repoDir.trim();
-    repoDir = repoDir.replace("\\", "/");
-    if(!repoDir.endsWith("/")) {
-    	repoDir = repoDir + "/";
+    if(repoDir != null) {
+        repoDir = repoDir.trim();
+        repoDir = repoDir.replace("\\", "/");
+        if(!repoDir.endsWith("/")) {
+            repoDir = repoDir + "/";
+        }
     }
 
     for(int i=0;i<sourceFileList.size();i++) {
