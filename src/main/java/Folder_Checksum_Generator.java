@@ -10,19 +10,42 @@ public class Folder_Checksum_Generator {
   private static List<String> skippedExtentionList = null;
   private static List<String> repoFlagList = null;
   private static boolean repoFlag = false;
+  private static boolean forceFlag = false;
+  
   private static String repoDir = "";
   //-----------------------------------------------------------------------------------------------------------------------
   public static void main(String[] args) throws Exception {
-    if(args != null && args.length > 0 && !args[0].trim().equals("")) {
-    	SOURCE_BASE_FOLDER = args[0];
+    //if(args != null ) {
+    //    System.out.println("args.length = "+args.length);
+    //}
+    if(args != null && args.length >= 1 ) {
+        System.out.println("args.length >= 1");
+        if(args[0].trim().equalsIgnoreCase("-f")) {
+            forceFlag = true;
+            if(args != null && args.length >= 2 ) {
+                System.out.println("args.length >= 2");
+                SOURCE_BASE_FOLDER = args[1];
+            }
+        } else {
+            if(args[0].trim().equalsIgnoreCase("") || args[0].trim().equalsIgnoreCase(".")) {
+                SOURCE_BASE_FOLDER = ".";
+            } else {
+                SOURCE_BASE_FOLDER = args[0];
+            }
+        }
+    }
+    if(SOURCE_BASE_FOLDER.endsWith("\\")) {
+        SOURCE_BASE_FOLDER = SOURCE_BASE_FOLDER.substring(0,SOURCE_BASE_FOLDER.length()-1);
     }
     //SOURCE_BASE_FOLDER ="D:\\zShibu\\0_from_TRC\\00-shibu\\fin\\1";
-    //System.out.println("SOURCE_BASE_FOLDER ="+SOURCE_BASE_FOLDER);
+    //System.out.println("SOURCE_BASE_FOLDER ='"+SOURCE_BASE_FOLDER+"'");
+    //System.out.println("forceFlag ="+forceFlag);
     File sourceFolder = new File(SOURCE_BASE_FOLDER);
     if(!sourceFolder.exists()) {
         System.out.println("Folder "+SOURCE_BASE_FOLDER + " does not exist. Exiting");
         System.exit(-1);
     }
+    //if(true)System.exit(-1);
     sourceFileList = FileUtil.getFileListFromFolder(SOURCE_BASE_FOLDER);
     String propertyFilePath = Util.locatePropertiesFile();
     propertiesMap = PropertiesLoader.loadToHashMap(propertyFilePath);
@@ -67,19 +90,19 @@ public class Folder_Checksum_Generator {
 		//------------------------------------------------------------
 		String md5FileInSubDirectoryStr2 = parentFolderName + "/md5/" + fileNameOnly + ".md5";
 		md5File = new File(md5FileInSubDirectoryStr2);
-        if(md5File.exists()) {
+        if(md5File.exists() && !forceFlag) {
             continue;
         }
 		//------------------------------------------------------------
         //check if the checksum file exists in the checksum repo
 		String fileNameMD5 = MD5Util.getMD5ChecksumAsHEX(fileNameOnly);
 		File ff = new File(repoDir + "/" + fileNameMD5.substring(0,2) + "/" + fileNameMD5 + ".txt");
-		if(ff.exists()) {
+		if(ff.exists() && !forceFlag) {
 			continue;
 		}
 		//------------------------------------------------------------
         md5File = new File(fileName+".md5");
-        if(md5File.exists()) {
+        if(md5File.exists() && !forceFlag) {
             continue;
         }
 		//------------------------------------------------------------
