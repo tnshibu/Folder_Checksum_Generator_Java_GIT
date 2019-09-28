@@ -7,6 +7,11 @@
 	<artifactId>Folder_Checksum_Generator</artifactId>
 	<version>2.2</version>
 	<name>Folder_Checksum_Generator</name>
+    <properties>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+    </properties>
+
 	<dependencies>
 
 		<dependency>

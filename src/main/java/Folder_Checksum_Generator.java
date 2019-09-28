@@ -18,22 +18,22 @@ public class Folder_Checksum_Generator {
     //if(args != null ) {
     //    System.out.println("args.length = "+args.length);
     //}
-    if(args != null && args.length >= 1 ) {
-        System.out.println("args.length >= 1");
-        if(args[0].trim().equalsIgnoreCase("-f")) {
+    List<String> argList = new ArrayList<String>();
+    Collections.addAll(argList, args);
+    //System.out.println(argList.size() +":"+argList);
+    
+    if(argList != null && argList.size() >= 1 ) {
+        if(argList.get(0).trim().equalsIgnoreCase("-f")) {
             forceFlag = true;
-            if(args != null && args.length >= 2 ) {
-                System.out.println("args.length >= 2");
-                SOURCE_BASE_FOLDER = args[1];
-            }
-        } else {
-            if(args[0].trim().equalsIgnoreCase("") || args[0].trim().equalsIgnoreCase(".")) {
-                SOURCE_BASE_FOLDER = ".";
-            } else {
-                SOURCE_BASE_FOLDER = args[0];
-            }
+            argList.remove(0);
         }
     }
+    //System.out.println(argList.size() +":"+argList);
+
+    if(argList != null && argList.size() >= 1 ) {
+        SOURCE_BASE_FOLDER = argList.get(0);
+    }
+
     if(SOURCE_BASE_FOLDER.endsWith("\\")) {
         SOURCE_BASE_FOLDER = SOURCE_BASE_FOLDER.substring(0,SOURCE_BASE_FOLDER.length()-1);
     }
