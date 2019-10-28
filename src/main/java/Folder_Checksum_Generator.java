@@ -118,13 +118,13 @@ public class Folder_Checksum_Generator {
     }
   }
   //-----------------------------------------------------------------------------------------------------------------------
-  public static void writeToChecksumRepo(String md5String, File md5File) throws Exception {
-        String prefix = md5String.substring(0,2);
-        File folder = new File(repoDir+prefix);
-        folder.mkdirs();
-        File destination = new File(repoDir + prefix + "/" + md5String + ".txt");
-        Files.copy(md5File.toPath(), destination.toPath());
-  }
+  //public static void writeToChecksumRepo(String md5String, File md5File) throws Exception {
+  //      String prefix = md5String.substring(0,2);
+  //      File folder = new File(repoDir+prefix);
+  //      folder.mkdirs();
+  //      File destination = new File(repoDir + prefix + "/" + md5String + ".txt");
+  //      Files.copy(md5File.toPath(), destination.toPath());
+  //}
   //-----------------------------------------------------------------------------------------------------------------------
   public static void writeToChecksumRepo(File md5File) throws Exception {
       List<String> md5List = FileUtil.readFileContentsAsStringList(md5File.getAbsolutePath());
@@ -139,8 +139,8 @@ public class Folder_Checksum_Generator {
         File folder = new File(repoDir+prefix);
         folder.mkdirs();
         File destination = new File(repoDir + prefix + "/" + fileContentMd5 + ".txt");
-        FileOutputStream fos =  new FileOutputStream(destination);
-        fos.write((fileContentMd5 + " " + fileName).getBytes());
+        FileOutputStream fos =  new FileOutputStream(destination, true); //append to file
+        fos.write((fileContentMd5 + " " + fileName + "\n").getBytes());
         fos.close();
         
         //second write to repo based for file name MD5
@@ -149,8 +149,8 @@ public class Folder_Checksum_Generator {
         folder = new File(repoDir+prefix);
         folder.mkdirs();
         destination = new File(repoDir + prefix + "/" + fileNameMD5 + ".txt");
-        fos =  new FileOutputStream(destination);
-        fos.write((fileContentMd5 + " " + fileName).getBytes());
+        fos =  new FileOutputStream(destination,  true); //append to file
+        fos.write((fileContentMd5 + " " + fileName + "\n").getBytes());
         fos.close();
       }
   }
