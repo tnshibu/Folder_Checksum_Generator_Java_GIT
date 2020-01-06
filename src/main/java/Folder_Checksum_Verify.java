@@ -14,6 +14,10 @@ public class Folder_Checksum_Verify {
   private static int CHECKSUM_FAILURE = 2;
   private static int CHECKSUM_MISSING = 3;
   
+  private static int successCount = 0;
+  private static int failureCount = 0;
+  private static int missingCount = 0;
+  
   
   public static void main(String[] args) throws Exception {
     if(args != null && args.length > 0 && !args[0].trim().equals("")) {
@@ -73,15 +77,21 @@ public class Folder_Checksum_Verify {
 		//-------------------------------------------------------------
 		if(result == CHECKSUM_SUCCESS) {
             System.out.println("OKAY : "+fileName);
+			successCount++;
 		}
 		if(result == CHECKSUM_FAILURE) {
             System.out.println("FAIL : "+fileName);
+			failureCount++;
 		}
 		if(result == CHECKSUM_MISSING) {
             System.out.println("MISS : "+fileName);
+			missingCount++;
 		}
         //System.out.println("-----------------------------------------------------------");
     }
+    System.out.println("Summary : successCount : " + successCount);
+    System.out.println("Summary : failureCount : " + failureCount);
+    System.out.println("Summary : missingCount : " + missingCount);
   }
   //-----------------------------------------------------------------------------------------------------------------------
   public static int verifyChecksum(String fileName, String md5FileName) throws Exception {
